@@ -23,16 +23,29 @@ def run_api_health_check():
 
 
 TASK_REGISTRY = {
-    "api_health_check": run_api_health_check,
+    "api_health_check": {
+        "handler": run_api_health_check,
+        "description": "Checks the health of the GitHub API"
+    }
 }
+
+
+def get_available_tasks():
+    return [
+        {
+            "task_type": task_name,
+            "description": task_data["description"]
+        }
+        for task_name, task_data in TASK_REGISTRY.items()
+    ]
 
 
 def run_task_by_type(task_type: str):
     logger.info("Received task request: %s", task_type)
 
-    task_function = TASK_REGISTRY.get(task_type)
+    task_data = TASK_REGISTRY.get(task_type)
 
-    if task_function is None:
+    if task_data is None:
         logger.error("Unsupported task type: %s", task_type)
         return {
             "task": task_type,
@@ -40,4 +53,5 @@ def run_task_by_type(task_type: str):
             "status": "unsupported"
         }
 
+    task_function = task_data["handler"]
     return task_function()
