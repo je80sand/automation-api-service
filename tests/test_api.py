@@ -25,3 +25,4 @@ def test_run_task_endpoint():
     assert "result" in data
     assert data["result"]["task"] == "api_health_check"
     assert data["result"]["status"] == "healthy"
+    assert data["result"]["checked_url"] == "https://api.github.com"
