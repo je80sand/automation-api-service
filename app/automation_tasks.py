@@ -7,6 +7,16 @@ logger = logging.getLogger(__name__)
 RUN_HISTORY = []
 
 
+def record_run(task_name: str, status: str):
+    RUN_HISTORY.append(
+        {
+            "task": task_name,
+            "status": status,
+            "timestamp": datetime.now(UTC).isoformat()
+        }
+    )
+
+
 async def run_api_health_check():
     logger.info("Starting automation task: api_health_check")
 
@@ -21,15 +31,29 @@ async def run_api_health_check():
         "status": status
     }
 
-    RUN_HISTORY.append(
-        {
-            "task": result["task"],
-            "status": result["status"],
-            "timestamp": datetime.now(UTC).isoformat()
-        }
-    )
+    record_run(result["task"], result["status"])
 
     logger.info("Automation task completed: api_health_check")
+    return result
+
+
+async def run_python_homepage_check():
+    logger.info("Starting automation task: python_homepage_check")
+
+    url = "https://www.python.org"
+    response = requests.get(url)
+
+    status = "healthy" if response.status_code == 200 else "unhealthy"
+
+    result = {
+        "task": "python_homepage_check",
+        "checked_url": url,
+        "status": status
+    }
+
+    record_run(result["task"], result["status"])
+
+    logger.info("Automation task completed: python_homepage_check")
     return result
 
 
@@ -37,6 +61,10 @@ TASK_REGISTRY = {
     "api_health_check": {
         "handler": run_api_health_check,
         "description": "Checks the health of the GitHub API"
+    },
+    "python_homepage_check": {
+        "handler": run_python_homepage_check,
+        "description": "Checks the availability of python.org"
     }
 }
 
@@ -68,14 +96,7 @@ async def run_task_by_type(task_type: str):
             "status": "unsupported"
         }
 
-        RUN_HISTORY.append(
-            {
-                "task": unsupported_result["task"],
-                "status": unsupported_result["status"],
-                "timestamp": datetime.now(UTC).isoformat()
-            }
-        )
-
+        record_run(unsupported_result["task"], unsupported_result["status"])
         return unsupported_result
 
     task_function = task_data["handler"]

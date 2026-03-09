@@ -31,10 +31,8 @@ def test_run_task_endpoint(mock_get):
 
     data = response.json()
 
-    assert "result" in data
-    assert data["result"]["task"] == "api_health_check"
-    assert data["result"]["status"] == "healthy"
-    assert data["result"]["checked_url"] == "https://api.github.com"
+    assert data["message"] == "Task accepted for background execution"
+    assert data["task_type"] == "api_health_check"
 
 
 def test_run_task_with_unsupported_type():
@@ -45,6 +43,16 @@ def test_run_task_with_unsupported_type():
 
     data = response.json()
 
-    assert data["result"]["task"] == "not_real"
-    assert data["result"]["status"] == "unsupported"
-    assert data["result"]["checked_url"] == ""
+    assert data["message"] == "Task accepted for background execution"
+    assert data["task_type"] == "not_real"
+
+
+def test_tasks_endpoint_lists_multiple_tasks():
+    response = client.get("/tasks")
+    assert response.status_code == 200
+
+    data = response.json()
+    task_types = [task["task_type"] for task in data["available_tasks"]]
+
+    assert "api_health_check" in task_types
+    assert "python_homepage_check" in task_types
