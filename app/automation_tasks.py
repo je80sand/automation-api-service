@@ -1,21 +1,15 @@
-import time
+import logging
 
+logger = logging.getLogger(__name__)
 
 def run_sample_automation():
-    """
-    Example automation task.
-    This simulates a job like scraping, monitoring, or testing.
-    """
-
-    print("Starting automation task...")
-
-    time.sleep(2)
+    logger.info("Starting sample automation task")
 
     result = {
         "task": "sample_automation",
         "status": "completed"
     }
 
-    print("Automation finished.")
+    logger.info("Automation task completed")
 
     return result
