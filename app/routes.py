@@ -1,5 +1,6 @@
 from fastapi import APIRouter
-from app.automation_tasks import run_sample_automation
+from app.automation_tasks import run_task_by_type, TASK_REGISTRY
+from app.models import AutomationTaskRequest
 
 router = APIRouter()
 
@@ -9,7 +10,12 @@ def health_check():
     return {"status": "ok"}
 
 
+@router.get("/tasks")
+def list_tasks():
+    return {"available_tasks": list(TASK_REGISTRY.keys())}
+
+
 @router.post("/run-task")
-def run_task():
-    result = run_sample_automation()
+def run_task(task_request: AutomationTaskRequest):
+    result = run_task_by_type(task_request.task_type)
     return {"result": result}
