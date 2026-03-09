@@ -23,5 +23,5 @@ def test_run_task_endpoint():
     data = response.json()
 
     assert "result" in data
-    assert data["result"]["task"] == "sample_automation"
-    assert data["result"]["status"] == "completed"
+    assert data["result"]["task"] == "api_health_check"
+    assert data["result"]["status"] == "healthy"
